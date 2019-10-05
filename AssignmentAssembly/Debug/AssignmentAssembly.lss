@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\A\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm Thu Oct 03 20:03:49 2019
+AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm Sun Oct 06 01:47:24 2019
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
@@ -825,90 +825,170 @@ AVRASM ver. 2.2.7  C:\Users\A\Documents\Atmel Studio\7.0\IESAssignmentAssembly\A
                                  ; Created: 20/09/2019 11:32:22
                                  ; Author : Daniel
                                  ;
-                                 .def IS_HIGH=r16
-                                 .def GOT_DISTANCE=r17
-                                 .def temp=r18
+                                 .def zero_reg=r20
+                                 .def sreg_temp=r11
+                                 .def IS_HIGH=r18
+                                 .def GOT_DISTANCE=r19
+                                 .def temp=r21
+                                 .def pulse_time_low=r16
+                                 .def pulse_time_high=r17
+                                 .def distance=r12
+                                 .def div_result=r25
                                  
                                  ; Replace with your application code
-                                 reset:
-000000 c01c                         rjmp start ; Reset interrupt
-000001 9518                         reti      ; Addr $01
-000002 9518                         reti      ; Addr $02
-000003 9518                         reti      ; Addr $03
-000004 9518                         reti      ; Addr $04
-000005 9518                         reti      ; Addr $05
-000006 9518                         reti      ; Addr $06        Use 'rjmp myVector'
-000007 9518                         reti      ; Addr $07        to define a interrupt vector
-000008 9518                         reti      ; Addr $08
-000009 9518                         reti      ; Addr $09
-00000a 9518                         reti      ; Addr $0A
-00000b 9518                         reti      ; Addr $0B        This is just an example
-00000c 9518                         reti      ; Addr $0C        Not all MCUs have the same
-00000d 9518                         reti      ; Addr $0D        number of interrupt vectors
-00000e 9518                         reti      ; Addr $0E
-00000f 9518                         reti      ; Addr $0F
-000010 9518                         reti      ; Addr $10
-                                 
-                                 ;Int1 routine
-                                 int1_int_start:
-000011 3001                      	CPI IS_HIGH, 0x01
-000012 f009                      	BREQ int1_stop_timer
-000013 c005                      	RJMP int1_start_timer
-                                 
-                                 int1_stop_timer:
-                                 	;Stop Timer
-000014 e020                      	LDI temp, 0x00
-000015 bd2e                      	OUT TCCR1B, temp
-                                 	;Mark the the next change to expect is a high pulse
-000016 e000                      	LDI IS_HIGH, 0x00
-                                 	;Mark that the distance can now be calculated
-000017 e011                      	LDI GOT_DISTANCE, 0x01
-000018 c003                      	RJMP int1_int_end
-                                 
-                                 int1_start_timer:
-                                 	;Start timer with an 8 prescale factor (8 clocks = 1 count)	
-000019 e022                      	LDI temp, (1 << CS11)
-                                 	;Mark that the next change should be a high to low change
-00001a e001                      	LDI IS_HIGH, 0x01
-00001b c000                      	RJMP int1_int_end
-                                 
-                                 int1_int_end:
-00001c 9518                      	RETI
+                                 .ORG 0x00
+000000 c004                         rjmp start ; Reset interrupt
+                                 .ORG 0x04
+000004 c043                         RJMP int1_int_start       ; Addr $04
                                  
                                  start:
-                                 	;Initalize GPIO registers for use
-00001d e021                          LDI temp, 0x01
-00001e bb27                      	OUT DDRB, temp
-00001f bb24                      	OUT DDRC, temp
-000020 ef27                      	LDI temp, 0xF7
-000021 bb21                      	OUT DDRD, temp
-000022 e020                      	LDI temp, 0x00
-000023 bb28                      	OUT PORTB, temp
-000024 bb25                      	OUT PORTC, temp
-                                 	
                                  	;Initialize stack pointer
-000025 e028                      	LDI temp, high(RAMEND)
-000026 bf2e                      	OUT SPH, temp
-000027 e52f                      	LDI temp, low(RAMEND)
-000028 bf2d                      	OUT SPL, temp
-000029 c000                      	RJMP setup_lcd
+000005 e058                      	LDI temp, high(RAMEND)
+000006 bf5e                      	OUT SPH, temp
+000007 e55f                      	LDI temp, low(RAMEND)
+000008 bf5d                      	OUT SPL, temp
+                                 	
+                                 	;Initalize GPIO registers for use
+                                 	;TEMP to test ultrasonic 
+000009 e051                      	LDI temp, 0x01
+00000a bb54                      	OUT DDRC, temp
+00000b ef5f                      	LDI temp, 0xFF
+00000c bb57                      	OUT DDRB, temp
+00000d 2744                      	CLR zero_reg
+                                 	;
+                                 
+00000e ef57                      	LDI temp, 0xF7
+00000f bb51                      	OUT DDRD, temp
+000010 e050                      	LDI temp, 0x00
+000011 bb58                      	OUT PORTB, temp
+000012 bb55                      	OUT PORTC, temp
+000013 c000                      	RJMP setup_lcd
                                  
                                  setup_lcd:
-00002a c000                      	RJMP setup_interrupts
+000014 c000                      	RJMP setup_interrupts
                                  
                                  setup_interrupts:
                                  	;Enable INT1 interrupt
-00002b e820                      	LDI temp, (1 << INT1)
-00002c bf2b                      	OUT GICR, temp
+000015 e850                      	LDI temp, 0x80
+000016 bf5b                      	OUT GICR, temp
                                  	;Set INT1 to trigger on any logical change
-00002d e024                      	LDI temp, (1 << ISC10)
-00002e bf25                      	OUT MCUCR, temp
+000017 e054                      	LDI temp, 0x04
+000018 bf55                      	OUT MCUCR, temp
                                  	;Enable global interrupts
-00002f 9478                      	SEI
-000030 c000                      	RJMP main_loop
+000019 9478                      	SEI
+00001a c000                      	RJMP main_loop
                                  
                                  main_loop:
-                                 	
+00001b d00c                      	RCALL query_sensors
+00001c c000                      	RJMP delay
+                                 
+                                 delay:
+00001d e12f                          ldi  r18, 31
+00001e e731                          ldi  r19, 113
+00001f e14f                          ldi  r20, 31
+000020 954a                      L1: dec  r20
+000021 f7f1                          brne L1
+000022 953a                          dec  r19
+000023 f7e1                          brne L1
+000024 952a                          dec  r18
+000025 f7d1                          brne L1
+000026 0000                          nop
+000027 cff3                      	rjmp main_loop
+                                 
+                                 query_sensors:
+                                 	;Start high pulse
+000028 e051                      	LDI temp, 0x01
+000029 bb55                      	OUT PORTC, temp
+                                 	;10 us delay
+00002a e258                      	LDI  temp, 0x28
+00002b 955a                      L2: DEC  temp
+00002c f7f1                          BRNE L2
+                                 	;Continue by setting output to low
+00002d e050                      	LDI temp, 0x00
+00002e bb55                      	OUT PORTC, temp
+00002f e030                      	LDI GOT_DISTANCE, 0x00
+                                 	;Save a clock cycle by reusing the fact that got_distance is 0x00
+                                 	;OUT PORTC, GOT_DISTANCE 
+                                 ;Wait until ultrasonic sensor has finished its echo pulse
+                                 wait_until_done:
+000030 3030                      	CPI GOT_DISTANCE, 0x00
+000031 f3f1                      	BREQ wait_until_done
+                                 	;LDI pulse_time_low, 0x80
+                                 	;LDI pulse_time_high, 0x03
+                                 
+                                 	;Make sure old records are gone
+                                 	;CLR pulse_time_low
+                                 	;CLR pulse_time_high
+                                 	;Record the distance into register
+000032 b75f                      	IN temp, SREG
+000033 94f8                      	CLI
+000034 b50c                      	IN pulse_time_low, TCNT1L
+000035 b51d                      	IN pulse_time_high, TCNT1H	
+                                 
+000036 bd4d                      	OUT TCNT1H, zero_reg
+000037 bd4c                      	OUT TCNT1L, zero_reg
+000038 bf5f                      	OUT SREG, temp
+                                 	;Reset the clock
+                                 	;OUT PORTB, pulse_time_low
+                                 
+000039 2799                      	CLR div_result
+00003a 24cc                      	CLR distance
+                                 
+00003b e051                      	LDI temp, 0x01
+                                 
+                                 
+                                 check_div_done:
+                                 	;Check if less than 57
+00003c 3507                      	CPI pulse_time_low, 0x57
+00003d f008                      	BRLO check_high
+                                 	;Not done yet
+00003e c002                      	RJMP calculate_distance
+                                 
+                                 check_high:
+00003f 3010                      	CPI pulse_time_high, 0x00
+                                 	;go to display
+000040 f029                      	BREQ display_distance
+                                 
+                                 calculate_distance:
+000041 5507                      	SUBI pulse_time_low, 0x57
+000042 4010                      	SBCI pulse_time_high, 0x00
+000043 9488                      	CLC
+000044 0ec5                      	ADD distance, temp
+000045 cff6                      	RJMP check_div_done
+                                 
+                                 display_distance:
+000046 bac8                      	OUT PORTB, distance
+000047 9508                      	RET
+                                 
+                                 ;Int1 routine
+                                 int1_int_start:
+000048 b6bf                      	IN sreg_temp,SREG
+000049 935f                      	PUSH temp
+00004a 3021                      	CPI IS_HIGH,0x01
+00004b f421                      	BRNE INT1_NOT_HIGH
+                                 
+                                 INT1_HIGH:
+                                 	;Turn off counter/timer
+00004c bd4e                      	OUT TCCR1B,zero_reg
+                                 
+                                 	;Got the distance now
+00004d e031                      	LDI GOT_DISTANCE, 0x01
+                                 	;Pulse now low
+00004e e020                      	LDI IS_HIGH,0x00
+00004f c004                      	RJMP END_INT1
+                                 
+                                 INT1_NOT_HIGH:
+000050 b55e                      	IN temp, TCCR1B
+                                 	;Load timer with prescale factor of 8
+000051 6052                      	ORI temp,0x02 
+                                 	;Start timer
+000052 bd5e                      	OUT TCCR1B,temp
+                                 	;Echo pulse now high
+000053 e021                      	LDI IS_HIGH,0x01
+                                 
+                                 END_INT1:
+000054 915f                      	POP temp
+000055 bebf                      	OUT SREG,sreg_temp
 
 
 RESOURCE USE INFORMATION
@@ -927,38 +1007,38 @@ counted separately from r26..r31 here.
 
 "ATmega32A" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
-r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   3 r17:   1 r18:  19 r19:   0 r20:   0 
-r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
+r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   2 r12:   3 
+r13:   0 r14:   0 r15:   0 r16:   3 r17:   3 r18:   5 r19:   5 r20:   6 
+r21:  32 r22:   0 r23:   0 r24:   0 r25:   1 r26:   0 r27:   0 r28:   0 
 r29:   0 r30:   0 r31:   0 
-Registers used: 3 out of 35 (8.6%)
+Registers used: 9 out of 35 (25.7%)
 
 "ATmega32A" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   1 adiw  :   0 and   :   0 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   1 brge  :   0 brhc  :   0 
-brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   0 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   2 brge  :   0 brhc  :   0 
+brhs  :   0 brid  :   0 brie  :   0 brlo  :   1 brlt  :   0 brmi  :   0 
+brne  :   5 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   0 cbr   :   0 
-clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
+clc   :   1 clh   :   0 cli   :   1 cln   :   0 clr   :   3 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   1 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   0 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :  12 lds   :   0 lpm   :   0 lsl   :   0 
+cpi   :   4 cpse  :   0 dec   :   4 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   5 inc   :   0 jmp   :   0 
+ld    :   0 ldd   :   0 ldi   :  19 lds   :   0 lpm   :   0 lsl   :   0 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  10 pop   :   0 
-push  :   0 rcall :   0 ret   :   0 reti  :  17 rjmp  :   7 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
+neg   :   0 nop   :   1 or    :   0 ori   :   1 out   :  18 pop   :   1 
+push  :   1 rcall :   1 ret   :   1 reti  :   1 rjmp  :  10 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   1 sbi   :   0 sbic  :   0 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   0 
-sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 7 out of 113 (6.2%)
+sub   :   0 subi  :   1 swap  :   0 tst   :   0 wdr   :   0 
+Instructions used: 23 out of 113 (20.4%)
 
 "ATmega32A" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000062     98      0     98   32768   0.3%
+[.cseg] 0x000000 0x0000ae    168      0    168   32768   0.5%
 [.dseg] 0x000060 0x000060      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 

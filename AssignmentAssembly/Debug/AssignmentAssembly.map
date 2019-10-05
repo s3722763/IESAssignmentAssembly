@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\A\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm Thu Oct 03 20:03:49 2019
+AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm Sun Oct 06 01:47:24 2019
 
 
 EQU  SIGNATURE_000 0000001e
@@ -568,15 +568,29 @@ EQU  ACIaddr      00000024
 EQU  TWIaddr      00000026
 EQU  SPMRaddr     00000028
 EQU  INT_VECTORS_SIZE 0000002a
-DEF  IS_HIGH      r16
-DEF  GOT_DISTANCE r17
-DEF  temp         r18
-CSEG reset        00000000
-CSEG start        0000001d
-CSEG int1_int_start 00000011
-CSEG int1_stop_timer 00000014
-CSEG int1_start_timer 00000019
-CSEG int1_int_end 0000001c
-CSEG setup_lcd    0000002a
-CSEG setup_interrupts 0000002b
-CSEG main_loop    00000031
+DEF  zero_reg     r20
+DEF  sreg_temp    r11
+DEF  IS_HIGH      r18
+DEF  GOT_DISTANCE r19
+DEF  temp         r21
+DEF  pulse_time_low r16
+DEF  pulse_time_high r17
+DEF  distance     r12
+DEF  div_result   r25
+CSEG start        00000005
+CSEG int1_int_start 00000048
+CSEG setup_lcd    00000014
+CSEG setup_interrupts 00000015
+CSEG main_loop    0000001b
+CSEG query_sensors 00000028
+CSEG delay        0000001d
+CSEG L1           00000020
+CSEG L2           0000002b
+CSEG wait_until_done 00000030
+CSEG check_div_done 0000003c
+CSEG check_high   0000003f
+CSEG calculate_distance 00000041
+CSEG display_distance 00000046
+CSEG INT1_NOT_HIGH 00000050
+CSEG INT1_HIGH    0000004c
+CSEG END_INT1     00000054
