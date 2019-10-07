@@ -22,22 +22,55 @@
   <FILE>AssignmentAssembly.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <start><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>23</LINE></start>
-  <int1_int_start><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>143</LINE></int1_int_start>
-  <setup_lcd><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>46</LINE></setup_lcd>
-  <setup_interrupts><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>49</LINE></setup_interrupts>
-  <main_loop><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>60</LINE></main_loop>
-  <query_sensors><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>77</LINE></query_sensors>
-  <delay><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>64</LINE></delay>
-  <L1><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>68</LINE></L1>
-  <L2><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>83</LINE></L2>
-  <wait_until_done><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>92</LINE></wait_until_done>
+  <start><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>33</LINE></start>
+  <int1_int_start><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>142</LINE></int1_int_start>
+  <setup_lcd><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>54</LINE></setup_lcd>
+  <setSendRate><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>172</LINE></setSendRate>
+  <initLCD><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>186</LINE></initLCD>
+  <setup_interrupts><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>59</LINE></setup_interrupts>
+  <main_loop><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>70</LINE></main_loop>
+  <query_sensors><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>79</LINE></query_sensors>
+  <generateSeperateNums><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>324</LINE></generateSeperateNums>
+  <updateLCD><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>306</LINE></updateLCD>
+  <wait_100_ms><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>425</LINE></wait_100_ms>
+  <L7><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>85</LINE></L7>
+  <wait_until_done><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>94</LINE></wait_until_done>
   <check_div_done><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>119</LINE></check_div_done>
   <check_high><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>126</LINE></check_high>
   <calculate_distance><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>131</LINE></calculate_distance>
   <display_distance><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>138</LINE></display_distance>
-  <INT1_NOT_HIGH><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>159</LINE></INT1_NOT_HIGH>
-  <INT1_HIGH><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>149</LINE></INT1_HIGH>
-  <END_INT1><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>168</LINE></END_INT1>
+  <INT1_NOT_HIGH><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>158</LINE></INT1_NOT_HIGH>
+  <INT1_HIGH><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>148</LINE></INT1_HIGH>
+  <END_INT1><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>167</LINE></END_INT1>
+  <sendTWI><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>183</LINE></sendTWI>
+  <twiStart><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>210</LINE></twiStart>
+  <lcdSend><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>272</LINE></lcdSend>
+  <wait_5_ms><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>360</LINE></wait_5_ms>
+  <sendNibble><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>287</LINE></sendNibble>
+  <wait_200_us><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>373</LINE></wait_200_us>
+  <lcdDisplayReset><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>257</LINE></lcdDisplayReset>
+  <twiStartWait><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>215</LINE></twiStartWait>
+  <twiAddressSend><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>223</LINE></twiAddressSend>
+  <twiAddressSendWait><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>230</LINE></twiAddressSendWait>
+  <twiDataSend><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>235</LINE></twiDataSend>
+  <twiDataSendWait><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>242</LINE></twiDataSendWait>
+  <twiSendStop><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>249</LINE></twiSendStop>
+  <wait_50_us><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>400</LINE></wait_50_us>
+  <wait_1_5_ms><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>387</LINE></wait_1_5_ms>
+  <sendNibble2><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>294</LINE></sendNibble2>
+  <wait_5_us><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>417</LINE></wait_5_us>
+  <hundred_div><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>330</LINE></hundred_div>
+  <tens_div><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>343</LINE></tens_div>
+  <hundred_calc><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>337</LINE></hundred_calc>
+  <div_fin><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>356</LINE></div_fin>
+  <tens_calc><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>350</LINE></tens_calc>
+  <L1><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>365</LINE></L1>
+  <L2><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>378</LINE></L2>
+  <L3><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>392</LINE></L3>
+  <L4><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>403</LINE></L4>
+  <wait_1_us><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>409</LINE></wait_1_us>
+  <L5><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>412</LINE></L5>
+  <L8><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>420</LINE></L8>
+  <L9><FILE>C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm</FILE><LINE>432</LINE></L9>
  </LABELS>
 </ASSEMBLER_INFO>

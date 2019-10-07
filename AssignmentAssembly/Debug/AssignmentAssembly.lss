@@ -1,7 +1,12 @@
 
-AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm Sun Oct 06 01:47:24 2019
+AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm Mon Oct 07 13:39:45 2019
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
+C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm(17): warning: Register r27 already defined by the .DEF directive
+C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm(19): warning: Register r26 already defined by the .DEF directive
+C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm(23): warning: Register r28 already defined by the .DEF directive
+C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm(24): warning: Register r29 already defined by the .DEF directive
+C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssembly\AssignmentAssembly\main.asm(25): warning: Register r30 already defined by the .DEF directive
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
                                  
                                  ;
@@ -825,6 +830,9 @@ AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssem
                                  ; Created: 20/09/2019 11:32:22
                                  ; Author : Daniel
                                  ;
+                                 ; Address is 0x27 but shifted 1 Left, with the lower bit being 0 to signify sending
+                                 .equ SLA_W=0x4E
+                                 
                                  .def zero_reg=r20
                                  .def sreg_temp=r11
                                  .def IS_HIGH=r18
@@ -832,14 +840,21 @@ AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssem
                                  .def temp=r21
                                  .def pulse_time_low=r16
                                  .def pulse_time_high=r17
-                                 .def distance=r12
+                                 .def distance=r27
                                  .def div_result=r25
+                                 .def twiDataToSend=r26
+                                 .def tooSend=r22
+                                 .def is_char=r23
+                                 .def options=r24
+                                 .def result_o=r28
+                                 .def result_t=r29
+                                 .def result_h=r30
                                  
                                  ; Replace with your application code
                                  .ORG 0x00
 000000 c004                         rjmp start ; Reset interrupt
                                  .ORG 0x04
-000004 c043                         RJMP int1_int_start       ; Addr $04
+000004 c03b                         RJMP int1_int_start       ; Addr $04
                                  
                                  start:
                                  	;Initialize stack pointer
@@ -851,68 +866,60 @@ AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssem
                                  	;Initalize GPIO registers for use
                                  	;TEMP to test ultrasonic 
 000009 e051                      	LDI temp, 0x01
-00000a bb54                      	OUT DDRC, temp
-00000b ef5f                      	LDI temp, 0xFF
-00000c bb57                      	OUT DDRB, temp
-00000d 2744                      	CLR zero_reg
+00000a bb57                      	OUT DDRB, temp
+00000b 2744                      	CLR zero_reg
                                  	;
                                  
-00000e ef57                      	LDI temp, 0xF7
-00000f bb51                      	OUT DDRD, temp
-000010 e050                      	LDI temp, 0x00
-000011 bb58                      	OUT PORTB, temp
-000012 bb55                      	OUT PORTC, temp
-000013 c000                      	RJMP setup_lcd
+00000c ef57                      	LDI temp, 0xF7
+00000d bb51                      	OUT DDRD, temp
+00000e e050                      	LDI temp, 0x00
+00000f bb58                      	OUT PORTB, temp
+000010 bb55                      	OUT PORTC, temp
+000011 c000                      	RJMP setup_lcd
                                  
                                  setup_lcd:
-000014 c000                      	RJMP setup_interrupts
+000012 940e 004f                 	CALL setSendRate
+000014 940e 0059                 	CALL initLCD
+000016 c000                      	RJMP setup_interrupts
                                  
                                  setup_interrupts:
                                  	;Enable INT1 interrupt
-000015 e850                      	LDI temp, 0x80
-000016 bf5b                      	OUT GICR, temp
+000017 e850                      	LDI temp, 0x80
+000018 bf5b                      	OUT GICR, temp
                                  	;Set INT1 to trigger on any logical change
-000017 e054                      	LDI temp, 0x04
-000018 bf55                      	OUT MCUCR, temp
+000019 e054                      	LDI temp, 0x04
+00001a bf55                      	OUT MCUCR, temp
                                  	;Enable global interrupts
-000019 9478                      	SEI
-00001a c000                      	RJMP main_loop
+00001b 9478                      	SEI
+00001c c000                      	RJMP main_loop
                                  
                                  main_loop:
-00001b d00c                      	RCALL query_sensors
-00001c c000                      	RJMP delay
+00001d d004                      	RCALL query_sensors
+00001e d0a2                      	RCALL generateSeperateNums
+00001f d08a                      	RCALL updateLCD
+000020 d0e9                      	RCALL wait_100_ms
+                                 	;OUT PORTB, distance
                                  
-                                 delay:
-00001d e12f                          ldi  r18, 31
-00001e e731                          ldi  r19, 113
-00001f e14f                          ldi  r20, 31
-000020 954a                      L1: dec  r20
-000021 f7f1                          brne L1
-000022 953a                          dec  r19
-000023 f7e1                          brne L1
-000024 952a                          dec  r18
-000025 f7d1                          brne L1
-000026 0000                          nop
-000027 cff3                      	rjmp main_loop
+000021 cffb                      	rjmp main_loop
                                  
                                  query_sensors:
                                  	;Start high pulse
-000028 e051                      	LDI temp, 0x01
-000029 bb55                      	OUT PORTC, temp
+000022 e051                      	LDI temp, 0x01
+000023 bb58                      	OUT PORTB, temp
                                  	;10 us delay
-00002a e258                      	LDI  temp, 0x28
-00002b 955a                      L2: DEC  temp
-00002c f7f1                          BRNE L2
+000024 e258                      	LDI  temp, 0x28
+000025 955a                      L7: DEC  temp
+000026 f7f1                          BRNE L7
                                  	;Continue by setting output to low
-00002d e050                      	LDI temp, 0x00
-00002e bb55                      	OUT PORTC, temp
-00002f e030                      	LDI GOT_DISTANCE, 0x00
+000027 e050                      	LDI temp, 0x00
+000028 bb58                      	OUT PORTB, temp
+000029 e030                      	LDI GOT_DISTANCE, 0x00
                                  	;Save a clock cycle by reusing the fact that got_distance is 0x00
                                  	;OUT PORTC, GOT_DISTANCE 
                                  ;Wait until ultrasonic sensor has finished its echo pulse
                                  wait_until_done:
-000030 3030                      	CPI GOT_DISTANCE, 0x00
-000031 f3f1                      	BREQ wait_until_done
+00002a 3030                      	CPI GOT_DISTANCE, 0x00
+00002b f3f1                      	BREQ wait_until_done
                                  	;LDI pulse_time_low, 0x80
                                  	;LDI pulse_time_high, 0x03
                                  
@@ -920,75 +927,344 @@ AVRASM ver. 2.2.7  C:\Users\Daniel\Documents\Atmel Studio\7.0\IESAssignmentAssem
                                  	;CLR pulse_time_low
                                  	;CLR pulse_time_high
                                  	;Record the distance into register
-000032 b75f                      	IN temp, SREG
-000033 94f8                      	CLI
-000034 b50c                      	IN pulse_time_low, TCNT1L
-000035 b51d                      	IN pulse_time_high, TCNT1H	
+00002c b75f                      	IN temp, SREG
+00002d 94f8                      	CLI
+00002e b50c                      	IN pulse_time_low, TCNT1L
+00002f b51d                      	IN pulse_time_high, TCNT1H	
                                  
-000036 bd4d                      	OUT TCNT1H, zero_reg
-000037 bd4c                      	OUT TCNT1L, zero_reg
-000038 bf5f                      	OUT SREG, temp
+000030 bd4d                      	OUT TCNT1H, zero_reg
+000031 bd4c                      	OUT TCNT1L, zero_reg
+000032 bf5f                      	OUT SREG, temp
                                  	;Reset the clock
                                  	;OUT PORTB, pulse_time_low
                                  
-000039 2799                      	CLR div_result
-00003a 24cc                      	CLR distance
-                                 
-00003b e051                      	LDI temp, 0x01
+000033 2799                      	CLR div_result
+000034 27bb                      	CLR distance
                                  
                                  
                                  check_div_done:
                                  	;Check if less than 57
-00003c 3507                      	CPI pulse_time_low, 0x57
-00003d f008                      	BRLO check_high
+000035 3507                      	CPI pulse_time_low, 0x57
+000036 f008                      	BRLO check_high
                                  	;Not done yet
-00003e c002                      	RJMP calculate_distance
+000037 c002                      	RJMP calculate_distance
                                  
                                  check_high:
-00003f 3010                      	CPI pulse_time_high, 0x00
+000038 3010                      	CPI pulse_time_high, 0x00
                                  	;go to display
-000040 f029                      	BREQ display_distance
+000039 f029                      	BREQ display_distance
                                  
                                  calculate_distance:
-000041 5507                      	SUBI pulse_time_low, 0x57
-000042 4010                      	SBCI pulse_time_high, 0x00
-000043 9488                      	CLC
-000044 0ec5                      	ADD distance, temp
-000045 cff6                      	RJMP check_div_done
+00003a 5507                      	SUBI pulse_time_low, 0x57
+00003b 4010                      	SBCI pulse_time_high, 0x00
+00003c 9488                      	CLC
+00003d 95b3                      	INC distance
+00003e cff6                      	RJMP check_div_done
                                  
                                  display_distance:
-000046 bac8                      	OUT PORTB, distance
-000047 9508                      	RET
+00003f 9508                      	RET
                                  
                                  ;Int1 routine
                                  int1_int_start:
-000048 b6bf                      	IN sreg_temp,SREG
-000049 935f                      	PUSH temp
-00004a 3021                      	CPI IS_HIGH,0x01
-00004b f421                      	BRNE INT1_NOT_HIGH
+000040 b6bf                      	IN sreg_temp,SREG
+000041 935f                      	PUSH temp
+000042 3021                      	CPI IS_HIGH,0x01
+000043 f421                      	BRNE INT1_NOT_HIGH
                                  
                                  INT1_HIGH:
                                  	;Turn off counter/timer
-00004c bd4e                      	OUT TCCR1B,zero_reg
+000044 bd4e                      	OUT TCCR1B,zero_reg
                                  
                                  	;Got the distance now
-00004d e031                      	LDI GOT_DISTANCE, 0x01
+000045 e031                      	LDI GOT_DISTANCE, 0x01
                                  	;Pulse now low
-00004e e020                      	LDI IS_HIGH,0x00
-00004f c004                      	RJMP END_INT1
+000046 e020                      	LDI IS_HIGH,0x00
+000047 c004                      	RJMP END_INT1
                                  
                                  INT1_NOT_HIGH:
-000050 b55e                      	IN temp, TCCR1B
+000048 b55e                      	IN temp, TCCR1B
                                  	;Load timer with prescale factor of 8
-000051 6052                      	ORI temp,0x02 
+000049 6052                      	ORI temp,0x02 
                                  	;Start timer
-000052 bd5e                      	OUT TCCR1B,temp
+00004a bd5e                      	OUT TCCR1B,temp
                                  	;Echo pulse now high
-000053 e021                      	LDI IS_HIGH,0x01
+00004b e021                      	LDI IS_HIGH,0x01
                                  
                                  END_INT1:
-000054 915f                      	POP temp
-000055 bebf                      	OUT SREG,sreg_temp
+00004c 915f                      	POP temp
+00004d bebf                      	OUT SREG,sreg_temp
+00004e 9518                      	RETI
+                                 
+                                 setSendRate:
+00004f 2755                      	CLR temp
+000050 b951                      	OUT TWSR, temp
+000051 e750                      	LDI temp, 0x70
+000052 b950                      	OUT TWBR, temp
+000053 e054                      	LDI temp, (1 << TWEN)
+000054 bf56                      	OUT TWCR, temp
+000055 ef5f                      	LDI temp, 0xFF
+000056 b953                      	OUT TWDR, temp
+000057 9508                      	RET
+                                 
+                                 sendTWI:
+000058 c012                      	RJMP twiStart
+                                 
+                                 initLCD:
+                                 	;Might need to add delay
+000059 2777                      	CLR is_char
+00005a e060                      	LDI tooSend, 0x00
+00005b d035                      	RCALL lcdSend
+00005c d078                      	RCALL wait_5_ms
+00005d e0a3                      	LDI twiDataToSend, 0x03
+00005e d03f                      	RCALL sendNibble
+00005f d075                      	RCALL wait_5_ms
+                                 	;Send the 0x03 again
+000060 e0a3                      	LDI twiDataToSend, 0x03
+000061 d03c                      	RCALL sendNibble
+000062 d07d                      	RCALL wait_200_us
+                                 	;Bit mode set (4 bit mode)
+000063 e0a2                      	LDI twiDataToSend, 0x02
+000064 d039                      	RCALL sendNibble
+000065 d07a                      	RCALL wait_200_us
+                                 	;Function send (1 Line, 8x5 characters)
+000066 e260                      	LDI tooSend, 0x20
+000067 d029                      	RCALL lcdSend
+000068 d077                      	RCALL wait_200_us
+000069 d017                      	RCALL lcdDisplayReset
+00006a 9508                      	RET
+                                 
+                                 twiStart:
+                                 	;LDI temp, 0x01
+                                 	;OUT PORTB, temp
+00006b ea54                      	LDI temp, (1 << TWINT) | (1 << TWSTA) | (1 << TWEN)
+00006c bf56                      	OUT TWCR, temp
+                                 twiStartWait:
+                                 	;LDI temp, 0x02
+                                 	;lUT PORTB, temp
+00006d b756                      	IN temp, TWCR
+                                 	;Wait until START sent
+00006e ff57                      	SBRS temp, TWINT
+00006f cffd                      	RJMP twiStartWait
+                                 
+                                 twiAddressSend:
+                                 	;LDI temp, 0x03
+                                 	;OUT PORTB, temp
+000070 e45e                      	LDI temp, SLA_W
+000071 b953                      	OUT TWDR, temp
+000072 e854                      	LDI temp, (1 << TWINT) | (1 << TWEN)
+000073 bf56                      	OUT TWCR, temp
+                                 twiAddressSendWait:
+000074 b756                      	IN temp, TWCR
+000075 ff57                      	SBRS temp, TWINT
+000076 cffd                      	RJMP twiAddressSendWait
+                                 
+                                 twiDataSend:
+                                 	;LDI temp, 0x05
+                                 	;OUT PORTB, temp
+                                 	;Data is in the twiDataToSend
+000077 b9a3                      	OUT TWDR, twiDataToSend
+000078 e854                      	LDI temp, (1 << TWINT) | (1 << TWEN)
+000079 bf56                      	OUT TWCR, temp
+                                 twiDataSendWait:
+                                 	;LDI temp, 0x06
+                                 	;OUT PORTB, temp
+00007a b756                      	IN temp, TWCR
+00007b ff57                      	SBRS temp, TWINT
+00007c cffd                      	RJMP twiDataSendWait
+                                 
+                                 twiSendStop:
+00007d b151                      	IN temp, TWSR
+                                 	;OUT PORTB, temp
+00007e e954                      	LDI temp, (1 << TWINT) | (1 << TWEN) | (1 << TWSTO)
+00007f bf56                      	OUT TWCR, temp
+000080 9508                      	RET
+                                 
+                                 
+                                 lcdDisplayReset:
+                                 	;Display on
+000081 e06c                      	LDI tooSend, 0x0C
+000082 940e 0091                 	CALL lcdSend
+000084 940e 00f7                 	CALL wait_50_us
+                                 	;Clear display
+000086 e061                      	LDI tooSend, 0x01
+000087 940e 0091                 	CALL lcdSend
+000089 940e 00ec                 	CALL wait_1_5_ms
+                                 	;Turn on Entry mode
+00008b e066                      	LDI tooSend, 0x06
+00008c 940e 0091                 	CALL lcdSend
+00008e 940e 00f7                 	CALL wait_50_us
+000090 9508                      	RET
+                                 
+                                 lcdSend:
+000091 2fa6                      	MOV twiDataToSend, tooSend
+                                 	;Upper 4 bits
+000092 7fa0                      	ANDI twiDataToSend, 0xF0
+000093 940e 009e                 	CALL sendNibble
+000095 2fa6                      	MOV twiDataToSend, tooSend
+                                 	;Shift it left 4 times
+000096 0faa                      	LSL twiDataToSend
+000097 0faa                      	LSL twiDataToSend
+000098 0faa                      	LSL twiDataToSend
+000099 0faa                      	LSL twiDataToSend
+00009a 7fa0                      	ANDI twiDataToSend, 0xF0
+00009b 940e 009e                 	CALL sendNibble
+00009d 9508                      	RET
+                                 
+                                 sendNibble:
+00009e e084                      	LDI options, 0x04
+00009f 3070                      	CPI is_char, 0x00
+0000a0 f009                      	BREQ sendNibble2
+                                 	;Set RS
+0000a1 6081                      	ORI options, 0x01
+                                 
+                                 sendNibble2:
+                                 	;Set backlight
+0000a2 6088                      	ORI options, 0x08
+0000a3 2ba8                      	OR twiDataToSend, options
+0000a4 940e 0058                 	CALL sendTWI
+                                 
+                                 	;Turn off the Enable flag
+                                 	;11111011
+0000a6 7fab                      	ANDI twiDataToSend, 0xFB
+0000a7 940e 0058                 	CALL sendTWI
+0000a9 9508                      	RET
+                                 
+                                 updateLCD:
+0000aa e070                      	LDI is_char, 0x00
+0000ab 940e 0081                 	CALL lcdDisplayReset
+0000ad 63e0                      	ORI result_h, 0x30
+0000ae 63d0                      	ORI result_t, 0x30
+0000af 63c0                      	ORI result_o, 0x30
+0000b0 e071                      	LDI is_char, 0x01
+0000b1 2f6e                      	MOV tooSend, result_h
+0000b2 940e 0091                 	CALL lcdSend
+0000b4 940e 0104                 	CALL wait_5_us
+0000b6 2f6d                      	MOV tooSend, result_t
+0000b7 940e 0091                 	CALL lcdSend
+0000b9 940e 0104                 	CALL wait_5_us
+0000bb 2f6c                      	MOV tooSend, result_o
+0000bc 940e 0091                 	CALL lcdSend
+0000be 940e 0104                 	CALL wait_5_us
+0000c0 9508                      	RET
+                                 
+                                 generateSeperateNums:
+0000c1 27ee                      	CLR result_h
+0000c2 27dd                      	CLR result_t
+0000c3 27cc                      	CLR result_o
+0000c4 c000                      	RJMP hundred_div
+                                 
+                                 hundred_div:
+                                 	;Check if less than 100
+0000c5 36b4                      	CPI distance, 0x64
+                                 	;Less than 100
+0000c6 f028                      	BRLO tens_div
+0000c7 c000                      	RJMP hundred_calc
+                                 
+                                 hundred_calc:
+0000c8 56b4                      	SUBI distance, 0x64
+0000c9 9488                      	CLC
+0000ca 95e3                      	INC result_h
+0000cb cff9                      	RJMP hundred_div
+                                 
+                                 tens_div:
+                                 	;Check if less than 100
+0000cc 30ba                      	CPI distance, 0x0A
+                                 	;Less than 100
+0000cd f028                      	BRLO div_fin
+0000ce c000                      	RJMP tens_calc
+                                 
+                                 tens_calc:
+0000cf 50ba                      	SUBI distance, 0x0A
+0000d0 9488                      	CLC
+0000d1 95d3                      	INC result_t
+0000d2 cff9                      	RJMP tens_div
+                                 
+                                 div_fin:
+0000d3 2fcb                      	MOV result_o, distance
+0000d4 9508                      	RET
+                                 
+                                 wait_5_ms:
+0000d5 932f                      	PUSH r18
+0000d6 933f                      	PUSH r19
+0000d7 e42e                          ldi  r18, 78
+0000d8 ee3b                          ldi  r19, 235
+0000d9 953a                      L1: dec  r19
+0000da f7f1                          brne L1
+0000db 952a                          dec  r18
+0000dc f7e1                          BRNE L1 
+0000dd 912f                      	POP r18
+0000de 913f                      	POP r19
+0000df 9508                      	RET
+                                 
+                                 wait_200_us:
+0000e0 932f                      	PUSH r18
+0000e1 933f                      	PUSH r19
+0000e2 e024                          ldi  r18, 4
+0000e3 e13d                          ldi  r19, 29
+0000e4 953a                      L2: dec  r19
+0000e5 f7f1                          brne L2
+0000e6 952a                          dec  r18
+0000e7 f7e1                          brne L2
+0000e8 0000                          NOP
+0000e9 912f                      	POP r18
+0000ea 913f                      	POP r19
+0000eb 9508                      	RET
+                                 
+                                 wait_1_5_ms:
+0000ec 932f                      	PUSH r18
+0000ed 933f                      	PUSH r19
+0000ee e128                          ldi  r18, 24
+0000ef e53f                          ldi  r19, 95
+0000f0 953a                      L3: dec  r19
+0000f1 f7f1                          brne L3
+0000f2 952a                          dec  r18
+0000f3 f7e1                          brne L3
+0000f4 912f                      	POP r18
+0000f5 913f                      	POP r19
+0000f6 9508                      	RET
+                                 
+                                 wait_50_us:
+0000f7 932f                      	PUSH r18
+0000f8 ec28                          ldi  r18, 200
+0000f9 952a                      L4: dec  r18
+0000fa f7f1                          brne L4
+0000fb 0000                          NOP
+0000fc 912f                      	POP r18
+0000fd 9508                      	RET
+                                 
+                                 wait_1_us:
+0000fe 932f                      	PUSH r18
+0000ff e024                          ldi  r18, 4
+000100 952a                      L5: dec  r18
+000101 f7f1                          brne L5
+000102 912f                      	POP r18
+000103 9508                      	RET
+                                 
+                                 wait_5_us:
+000104 932f                      	PUSH r18
+000105 e124                      	ldi  r18, 20
+000106 952a                      L8: dec  r18
+000107 f7f1                          brne L8
+000108 912f                      	POP r18
+000109 9508                      	RET
+                                 
+                                 wait_100_ms:
+00010a 932f                      	PUSH r18
+00010b 933f                      	PUSH r19
+00010c 934f                      	PUSH r20
+00010d e02d                      	ldi  r18, 13
+00010e e23d                          ldi  r19, 45
+00010f ed48                          ldi  r20, 216
+000110 954a                      L9: dec  r20
+000111 f7f1                          brne L9
+000112 953a                          dec  r19
+000113 f7e1                          brne L9
+000114 952a                          dec  r18
+000115 f7d1                          brne L9
+000116 0000                          NOP
+000117 912f                      	POP r18
+000118 913f                      	POP r19
+000119 914f                      	POP r20
 
 
 RESOURCE USE INFORMATION
@@ -1007,39 +1283,39 @@ counted separately from r26..r31 here.
 
 "ATmega32A" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
-r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   2 r12:   3 
-r13:   0 r14:   0 r15:   0 r16:   3 r17:   3 r18:   5 r19:   5 r20:   6 
-r21:  32 r22:   0 r23:   0 r24:   0 r25:   1 r26:   0 r27:   0 r28:   0 
-r29:   0 r30:   0 r31:   0 
-Registers used: 9 out of 35 (25.7%)
+r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   2 r12:   0 
+r13:   0 r14:   0 r15:   0 r16:   3 r17:   3 r18:  31 r19:  19 r20:   8 
+r21:  53 r22:  10 r23:   4 r24:   4 r25:   1 r26:  14 r27:   7 r28:   4 
+r29:   4 r30:   4 r31:   0 
+Registers used: 16 out of 35 (45.7%)
 
 "ATmega32A" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   1 adiw  :   0 and   :   0 
-andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   2 brge  :   0 brhc  :   0 
-brhs  :   0 brid  :   0 brie  :   0 brlo  :   1 brlt  :   0 brmi  :   0 
-brne  :   5 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   0 cbr   :   0 
-clc   :   1 clh   :   0 cli   :   1 cln   :   0 clr   :   3 cls   :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+andi  :   3 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   3 brge  :   0 brhc  :   0 
+brhs  :   0 brid  :   0 brie  :   0 brlo  :   3 brlt  :   0 brmi  :   0 
+brne  :  14 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :  19 cbi   :   0 cbr   :   0 
+clc   :   3 clh   :   0 cli   :   1 cln   :   0 clr   :   8 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   4 cpse  :   0 dec   :   4 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   5 inc   :   0 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :  19 lds   :   0 lpm   :   0 lsl   :   0 
-lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   1 or    :   0 ori   :   1 out   :  18 pop   :   1 
-push  :   1 rcall :   1 ret   :   1 reti  :   1 rjmp  :  10 rol   :   0 
+cpi   :   7 cpse  :   0 dec   :  13 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   9 inc   :   3 jmp   :   0 
+ld    :   0 ldd   :   0 ldi   :  45 lds   :   0 lpm   :   0 lsl   :   4 
+lsr   :   0 mov   :   6 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
+neg   :   0 nop   :   3 or    :   1 ori   :   6 out   :  26 pop   :  13 
+push  :  13 rcall :  15 ret   :  16 reti  :   1 rjmp  :  18 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   1 sbi   :   0 sbic  :   0 sbis  :   0 
-sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
+sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   3 sec   :   0 seh   :   0 
 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   0 
-sub   :   0 subi  :   1 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 23 out of 113 (20.4%)
+sub   :   0 subi  :   3 swap  :   0 tst   :   0 wdr   :   0 
+Instructions used: 29 out of 113 (25.7%)
 
 "ATmega32A" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0000ae    168      0    168   32768   0.5%
+[.cseg] 0x000000 0x000236    560      0    560   32768   1.7%
 [.dseg] 0x000060 0x000060      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
-Assembly complete, 0 errors, 0 warnings
+Assembly complete, 0 errors, 5 warnings
